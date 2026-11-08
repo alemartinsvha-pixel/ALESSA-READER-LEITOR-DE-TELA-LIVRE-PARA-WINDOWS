@@ -1,0 +1,7 @@
+{
+  "speak_on_start": true,
+  "voice_rate": 180,
+  "monitor_active_window": true,
+  "monitor_focus": true,
+  "poll_interval_ms": 400
+}
