@@ -5,7 +5,7 @@ Leitor de tela open source para Windows, escrito em Python. A versão 0.1 oferec
 ## Requisitos
 
 - Windows 11
-- Python 3.15.x (o script seleciona essa versão com `py -3.15`)
+- Python 3.15.x (o script seleciona essa versão com `py -3.15` quando disponível)
 - Inno Setup 7.1.0 (o build também reconhece Inno Setup 6)
 - Tkinter, incluído na instalação padrão do Python para Windows
 - Dependências listadas em `requirements.txt`
@@ -32,14 +32,13 @@ python main.py
 
 ## Build e instalador para Windows
 
-Com Python 3.15.x e Inno Setup 7.1.0 instalados, execute na raiz do repositório:
+Com Python 3.15.x e Inno Setup instalados, dê um duplo clique em `compilar.bat`, ou execute na raiz do projeto:
 
 ```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-.\build.ps1
+.\compilar.bat
 ```
 
-O script confere a versão Python, instala as dependências de build, compila com PyInstaller e localiza `ISCC.exe` via PATH ou nos diretórios padrão do Inno Setup 7/6. A compilação só será concluída se a versão do PyInstaller disponível no PyPI for compatível com o Python instalado.
+O arquivo chama `build.ps1`, que confere a versão Python, instala as dependências de build, compila com PyInstaller e localiza `ISCC.exe` via PATH ou nos diretórios padrão do Inno Setup 7/6. A compilação só será concluída se a versão do PyInstaller disponível no PyPI for compatível com o Python instalado.
 
 Arquivos esperados:
 
@@ -58,6 +57,7 @@ LeitorLivre/
 ├── requirements.txt
 ├── requirements-build.txt
 ├── build.ps1
+├── compilar.bat
 ├── build/LeitorLivre.spec
 └── installer/LeitorLivre.iss
 ```
