@@ -18,5 +18,11 @@ ENV/
 .DS_Store
 Thumbs.db
 
+# Distribution / packaging
+build/work/
+dist/
+*.zip
+*.exe
+
 # Logs
 logs/*.log

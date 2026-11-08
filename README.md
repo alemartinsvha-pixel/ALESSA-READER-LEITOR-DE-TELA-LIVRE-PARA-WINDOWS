@@ -34,6 +34,20 @@ python main.py
 - Ajustar velocidade da voz
 - Salvar preferências
 
+## Build e instalador para Windows
+
+Para gerar a build e o instalador executável em Windows, execute:
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\build.ps1
+```
+
+O gerador cria:
+
+- executável em `dist\LeitorLivre\LeitorLivre.exe`
+- instalador em `dist\installer\LeitorLivre-Setup-0.1.0.exe`
+
 ## Estrutura
 
 ```text
@@ -50,8 +64,15 @@ LeitorLivre/
 │   └── config.json
 ├── logs/
 ├── requirements.txt
+├── requirements-build.txt
 ├── README.md
-└── .gitignore
+├── .gitignore
+├── build.ps1
+├── build/
+│   └── LeitorLivre.spec
+├── installer/
+│   └── LeitorLivre.iss
+└── dist/
 ```
 
 ## Observações
