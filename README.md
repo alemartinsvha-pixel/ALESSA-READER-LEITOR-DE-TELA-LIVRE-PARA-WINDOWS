@@ -5,24 +5,20 @@ Leitor de tela open source para Windows, escrito em Python. A versão 0.1 oferec
 ## Requisitos
 
 - Windows 11
-- Python 3.14
+- Python 3.15.x (o script seleciona essa versão com `py -3.15`)
+- Inno Setup 7.1.0 (o build também reconhece Inno Setup 6)
 - Tkinter, incluído na instalação padrão do Python para Windows
 - Dependências listadas em `requirements.txt`
 
-## Instalação
+## Instalação e execução
 
 Abra o PowerShell na pasta do projeto:
 
 ```powershell
-py -3.14 -m venv .venv
+py -3.15 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-## Execução
-
-```powershell
 python main.py
 ```
 
@@ -36,17 +32,19 @@ python main.py
 
 ## Build e instalador para Windows
 
-Para gerar a build e o instalador executável em Windows, execute:
+Com Python 3.15.x e Inno Setup 7.1.0 instalados, execute na raiz do repositório:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
 .\build.ps1
 ```
 
-O gerador cria:
+O script confere a versão Python, instala as dependências de build, compila com PyInstaller e localiza `ISCC.exe` via PATH ou nos diretórios padrão do Inno Setup 7/6. A compilação só será concluída se a versão do PyInstaller disponível no PyPI for compatível com o Python instalado.
 
-- executável em `dist\LeitorLivre\LeitorLivre.exe`
-- instalador em `dist\installer\LeitorLivre-Setup-0.1.0.exe`
+Arquivos esperados:
+
+- Executável: `dist\LeitorLivre\LeitorLivre.exe`
+- Instalador: `dist\installer\LeitorLivre-Setup-0.1.0.exe`
 
 ## Estrutura
 
@@ -54,25 +52,14 @@ O gerador cria:
 LeitorLivre/
 ├── main.py
 ├── core/
-│   ├── voice.py
-│   ├── focus.py
-│   ├── accessibility.py
-│   └── config.py
 ├── gui/
-│   └── settings_window.py
 ├── data/
-│   └── config.json
 ├── logs/
 ├── requirements.txt
 ├── requirements-build.txt
-├── README.md
-├── .gitignore
 ├── build.ps1
-├── build/
-│   └── LeitorLivre.spec
-├── installer/
-│   └── LeitorLivre.iss
-└── dist/
+├── build/LeitorLivre.spec
+└── installer/LeitorLivre.iss
 ```
 
 ## Observações
