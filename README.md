@@ -5,8 +5,8 @@ Leitor de tela open source para Windows, escrito em Python. A versão 0.1 oferec
 ## Requisitos
 
 - Windows 11
-- Python 3.15.2
-- Inno Setup 7.1.0
+- Python 3.14.6
+- Inno Setup 7.1.0 (o build também reconhece Inno Setup 6)
 - Tkinter, incluído na instalação padrão do Python para Windows
 - Dependências listadas em `requirements.txt`
 
@@ -15,7 +15,7 @@ Leitor de tela open source para Windows, escrito em Python. A versão 0.1 oferec
 Abra o PowerShell na pasta do projeto:
 
 ```powershell
-py -3.15 -m venv .venv
+py -3.14 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -32,35 +32,18 @@ python main.py
 
 ## Build e instalador para Windows
 
-Com Python 3.15.2 e Inno Setup instalados, dê duplo clique em `compilar.bat`, ou execute na raiz do projeto:
+Com Python 3.14.6 e Inno Setup 7.1.0 instalados, dê duplo clique em `compilar.bat` ou execute-o na raiz do projeto:
 
 ```powershell
 .\compilar.bat
 ```
 
-O script cria o ambiente isolado `.venv-build` com `py -3.15`, confere que a versão usada é exatamente 3.15.2, instala/atualiza as dependências e o PyInstaller, gera o executável e procura `ISCC.exe` no PATH ou nos locais padrão do Inno Setup 7/6. Se a instalação do PyInstaller ou de alguma dependência falhar, leia a mensagem de erro exibida; isso pode indicar incompatibilidade do pacote com Python 3.15.2.
+O script cria o ambiente isolado `.venv-build` usando `py -3.14`, confere que a versão selecionada é exatamente 3.14.6, instala as dependências, gera o executável com PyInstaller e procura `ISCC.exe` no PATH ou nas pastas comuns do Inno Setup 7/6. Se uma dependência falhar, a mensagem será exibida no terminal.
 
 Arquivos esperados:
 
 - Executável: `dist\LeitorLivre\LeitorLivre.exe`
 - Instalador: `dist\installer\LeitorLivre-Setup-0.1.0.exe`
-
-## Estrutura
-
-```text
-LeitorLivre/
-├── main.py
-├── core/
-├── gui/
-├── data/
-├── logs/
-├── requirements.txt
-├── requirements-build.txt
-├── build.ps1
-├── compilar.bat
-├── build/LeitorLivre.spec
-└── installer/LeitorLivre.iss
-```
 
 ## Observações
 
