@@ -3,34 +3,49 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $ProjectRoot
 
-# Usa explicitamente a família Python 3.15 para evitar compilar com outra versão.
 $PythonLauncher = Get-Command py -ErrorAction SilentlyContinue
-if ($PythonLauncher) {
-    $PythonCommand = $PythonLauncher.Source
-    $PythonPrefixArgs = @("-3.15")
-} else {
-    $PythonLauncher = Get-Command python -ErrorAction SilentlyContinue
-    if (-not $PythonLauncher) {
-        throw "Python 3.15 não foi encontrado. Instale-o e habilite o launcher 'py' ou o PATH."
-    }
-    $PythonCommand = $PythonLauncher.Source
-    $PythonPrefixArgs = @()
+if (-not $PythonLauncher) {
+    throw "Python Launcher 'py' não foi encontrado. Instale o Python 3.15.2 com o launcher habilitado."
 }
 
-$PythonVersion = (& $PythonCommand @PythonPrefixArgs --version 2>&1 | Out-String).Trim()
-if ($LASTEXITCODE -ne 0 -or $PythonVersion -notmatch '^Python 3\.15\.') {
-    throw "Este build requer Python 3.15.x. Versão encontrada: $PythonVersion"
+# Cria um ambiente separado usando a instalação 3.15.x encontrada pelo launcher.
+$BuildVenv = Join-Path $ProjectRoot ".venv-build"
+Write-Host "Criando/atualizando ambiente de build com Python 3.15..."
+& $PythonLauncher.Source -3.15 -m venv $BuildVenv
+if ($LASTEXITCODE -ne 0) {
+    throw "Não foi possível criar o ambiente virtual com py -3.15. Confirme a instalação do Python 3.15.2."
+}
+
+$BuildPython = Join-Path $BuildVenv "Scripts\python.exe"
+if (-not (Test-Path $BuildPython)) {
+    throw "Python do ambiente de build não encontrado: $BuildPython"
+}
+
+$PythonVersion = (& $BuildPython --version 2>&1 | Out-String).Trim()
+if ($LASTEXITCODE -ne 0 -or $PythonVersion -ne "Python 3.15.2") {
+    throw "Este build requer exatamente Python 3.15.2. Encontrado: $PythonVersion"
 }
 Write-Host "Usando $PythonVersion"
 
-Write-Host "Atualizando pip e instalando dependências de build..."
-& $PythonCommand @PythonPrefixArgs -m pip install --upgrade pip
+Write-Host "Atualizando pip e instalando dependências..."
+& $BuildPython -m pip install --upgrade pip
 if ($LASTEXITCODE -ne 0) { throw "Falha ao atualizar pip." }
-& $PythonCommand @PythonPrefixArgs -m pip install -r requirements-build.txt
-if ($LASTEXITCODE -ne 0) { throw "Falha ao instalar dependências; confirme se PyInstaller já suporta esta versão do Python." }
+
+& $BuildPython -m pip install --upgrade -r requirements-build.txt
+if ($LASTEXITCODE -ne 0) {
+    throw "Falha ao instalar dependências. Confira a mensagem do pip acima; alguma dependência pode ainda não oferecer suporte ao Python 3.15.2."
+}
+
+# Garante que o empacotador e seus hooks sejam atualizados para a versão mais recente disponível.
+& $BuildPython -m pip install --upgrade pyinstaller pyinstaller-hooks-contrib
+if ($LASTEXITCODE -ne 0) { throw "Falha ao instalar/atualizar PyInstaller." }
+
+Write-Host "Versão do PyInstaller:"
+& $BuildPython -m PyInstaller --version
+if ($LASTEXITCODE -ne 0) { throw "PyInstaller não inicializou corretamente." }
 
 Write-Host "Gerando o executável com PyInstaller..."
-& $PythonCommand @PythonPrefixArgs -m PyInstaller `
+& $BuildPython -m PyInstaller `
     --clean `
     --noconfirm `
     --distpath "$ProjectRoot\dist" `
@@ -38,7 +53,7 @@ Write-Host "Gerando o executável com PyInstaller..."
     "$ProjectRoot\build\LeitorLivre.spec"
 if ($LASTEXITCODE -ne 0) { throw "Falha ao gerar o executável com PyInstaller." }
 
-# Procura primeiro Inno Setup 7.1 e mantém fallback para instalações comuns.
+# Procura ISCC.exe no PATH e nos diretórios padrão do Inno Setup 7 e 6.
 $IsccCommand = Get-Command ISCC.exe -ErrorAction SilentlyContinue
 $IsccPath = if ($IsccCommand) { $IsccCommand.Source } else { $null }
 
