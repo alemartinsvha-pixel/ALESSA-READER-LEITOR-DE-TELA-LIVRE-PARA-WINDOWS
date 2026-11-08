@@ -13,11 +13,16 @@ from typing import Any
 
 _LOGGER = logging.getLogger(__name__)
 
-USER_DATA_DIR = (
-    Path(os.environ["APPDATA"]) / "LeitorLivre"
-    if os.environ.get("APPDATA")
-    else Path.home() / "AppData" / "Roaming" / "LeitorLivre"
-)
+
+def _default_user_data_dir() -> Path:
+    """Retorna a pasta de dados do usuário em Windows."""
+    appdata = os.environ.get("APPDATA")
+    if appdata:
+        return Path(appdata) / "LeitorLivre"
+    return Path.home() / "AppData" / "Roaming" / "LeitorLivre"
+
+
+USER_DATA_DIR = _default_user_data_dir()
 CONFIG_PATH = USER_DATA_DIR / "config.json"
 
 
@@ -40,15 +45,16 @@ class AppConfig:
 
     def save(self, path: Path = CONFIG_PATH) -> None:
         """Salva as preferências usando substituição atômica do arquivo."""
-        path.parent.mkdir(parents=True, exist_ok=True)
-        arquivo_temporario = path.with_suffix(".tmp")
+        caminho = Path(path)
+        caminho.parent.mkdir(parents=True, exist_ok=True)
+        arquivo_temporario = caminho.with_suffix(".tmp")
 
         with arquivo_temporario.open("w", encoding="utf-8") as arquivo:
             json.dump(asdict(self), arquivo, ensure_ascii=False, indent=2)
             arquivo.write("\n")
 
-        arquivo_temporario.replace(path)
-        _LOGGER.info("Configuração salva em %s.", path)
+        arquivo_temporario.replace(caminho)
+        _LOGGER.info("Configuração salva em %s.", caminho)
 
 
 def _validar_int(
@@ -103,7 +109,7 @@ def _config_a_partir_de(dados: Any) -> AppConfig:
 
 def load_config(path: Path | None = None) -> AppConfig:
     """Carrega as preferências do usuário ou cria o arquivo inicial."""
-    destino = path or CONFIG_PATH
+    destino = Path(path) if path is not None else CONFIG_PATH
 
     if not destino.exists():
         try:
